@@ -28,6 +28,7 @@ defmodule Traefik.Handler do
     Content-Lenght: #{String.length(conn.response)}
     Accept: */*
 
+    #{conn.response}
     """
   end
 end
