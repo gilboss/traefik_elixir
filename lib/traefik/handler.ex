@@ -1,28 +1,34 @@
 defmodule Traefik.Handler do
-  def handle(request) do
+  def handler(request) do
     request
     |> parse()
     |> route()
     |> format_response()
   end
-end
 
-def parse(request) do
-  %{method: "GET", path: "/hello", response: ""}
-end
+  def parse(request) do
+    [method, path, _protocol] =
+      request
+      |> String.split("\n")
+      |> List.first()
+      |> String.split(" ")
 
-def route(conn) do
-  %{method: "GET", path: "/hello", response: "Hello world"}
-end
+    %{method: method, path: path, response: ""}
+  end
 
-def format_response(conn) do
-  """
-  HTTP/1.1 200 OK
-  Host: some.com
-  User-Abent: telnet
-  Accept: */*
+  def route(_conn) do
+    %{method: "GET", path: "/hello", response: "Hello world"}
+  end
 
-  """
+  def format_response(_conn) do
+    """
+    HTTP/1.1 200 OK
+    Host: some.com
+    User-Abent: telnet
+    Accept: */*
+
+    """
+  end
 end
 
 request = """
@@ -33,4 +39,4 @@ User-Agent: telnet
 
 """
 
-IO.puts(request)
+IO.puts(Traefik.Handler.handler(request))
