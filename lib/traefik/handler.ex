@@ -17,7 +17,15 @@ defmodule Traefik.Handler do
   end
 
   def route(conn) do
+    route(conn, conn.method, conn.path)
+  end
+
+  def route(conn, "GET", "/hello") do
     %{conn | response: "Hello world"}
+  end
+
+  def route(conn, "GET", "/world") do
+    %{conn | response: "Hola Making devs"}
   end
 
   def format_response(conn) do
@@ -34,7 +42,7 @@ defmodule Traefik.Handler do
 end
 
 request = """
-GET / HTTP/1.1
+GET /world HTTP/1.1
 Accept: */*
 Connection: keep-alive
 User-Agent: telnet
