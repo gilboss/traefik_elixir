@@ -1,11 +1,13 @@
 defmodule Traefik.Plugs do
-  def rewrite_path(%{path: "/redirectme"} = conn) do
+  alias Traefik.Conn
+
+  def rewrite_path(%Conn{path: "/redirectme"} = conn) do
     %{conn | path: "/all"}
   end
 
   def log(conn), do: IO.inspect(conn, label: "log")
 
-  def track(%{status: 404, path: path} = conn) do
+  def track(%Conn{status: 404, path: path} = conn) do
     IO.inspect("Warn path #{path} not found")
     conn
   end

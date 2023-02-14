@@ -4,6 +4,8 @@ defmodule Traefik.Handler do
   import Traefik.Plugs, only: [log: 1, track: 1]
   import Traefik.Parser, only: [parse: 1]
 
+  alias Traefik.Conn
+
   def handler(request) do
     request
     |> parse()
@@ -13,30 +15,30 @@ defmodule Traefik.Handler do
     |> format_response()
   end
 
-  def route(conn) do
+  def route(%Conn{} = conn) do
     route(conn, conn.method, conn.path)
   end
 
-  def route(conn, "GET", "/hello") do
+  def route(%Conn{} = conn, "GET", "/hello") do
     %{conn | status: 200, response: "Hello world"}
   end
 
-  def route(conn, "GET", "/world") do
+  def route(%Conn{} = conn, "GET", "/world") do
     %{conn | status: 200, response: "Hola Making devs"}
   end
 
-  def route(conn, "GET", "/all") do
+  def route(%Conn{} = conn, "GET", "/all") do
     %{conn | status: 200, response: "All developers greetings"}
   end
 
-  def route(conn, "GET", "/about") do
+  def route(%Conn{} = conn, "GET", "/about") do
     @files_path
     |> Path.join("about.html")
     |> File.read()
     |> handle_file(conn)
   end
 
-  def route(conn, _method, path) do
+  def route(%Conn{} = conn, _method, path) do
     %{conn | status: 404, response: "No #{path} found!!"}
   end
 
@@ -53,14 +55,14 @@ defmodule Traefik.Handler do
   #    end
   #  end
 
-  def handle_file({:ok, content}, conn), do: %{conn | status: 200, response: content}
+  def handle_file({:ok, content}, %Conn{} = conn), do: %{conn | status: 200, response: content}
 
-  def handle_file({:error, reason}, conn),
+  def handle_file({:error, reason}, %Conn{} = conn),
     do: %{conn | status: 404, response: "File not fount #{inspect(reason)}!!"}
 
   def format_response(conn) do
     """
-    HTTP/1.1 #{conn.status} #{status_reason(conn.status)}
+    HTTP/1.1 #{Conn.status(conn)}}
     Host: some.com
     User-Abent: telnet
     Content-Lenght: #{String.length(conn.response)}
@@ -68,18 +70,6 @@ defmodule Traefik.Handler do
 
     #{conn.response}
     """
-  end
-
-  defp status_reason(code) do
-    %{
-      200 => "OK",
-      201 => "created",
-      401 => "unauthorized",
-      403 => "forbidden",
-      404 => "Not found",
-      500 => "Internal server error"
-    }
-    |> Map.get(code)
   end
 end
 
