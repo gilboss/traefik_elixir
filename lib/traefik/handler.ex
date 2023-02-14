@@ -32,6 +32,10 @@ defmodule Traefik.Handler do
     %{conn | status: 200, response: "Hola Making devs"}
   end
 
+  def route(conn, "GET", "/all") do
+    %{conn | status: 200, response: "All developers greetings"}
+  end
+
   def route(conn, _method, path) do
     %{conn | status: 404, response: "No #{path} found!!"}
   end
