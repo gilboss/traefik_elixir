@@ -40,14 +40,26 @@ defmodule Traefik.Handler do
     Path.expand("../../pages", __DIR__)
     |> Path.join("about.html")
     |> File.read()
-    |> case do
-      {:ok, content} ->
-        %{conn | status: 200, response: content}
-
-      {:error, reason} ->
-        %{conn | status: 404, response: "File not fount #{inspect(reason)}!!"}
-    end
+    |> handle_file(conn)
   end
+
+  #  def route(conn, "GET", "/about") do
+  #    Path.expand("../../pages", __DIR__)
+  #    |> Path.join("about.html")
+  #    |> File.read()
+  #    |> case do
+  #      {:ok, content} ->
+  #        %{conn | status: 200, response: content}
+  #
+  #      {:error, reason} ->
+  #        %{conn | status: 404, response: "File not fount #{inspect(reason)}!!"}
+  #    end
+  #  end
+
+  def handle_file({:ok, content}, conn), do: %{conn | status: 200, response: content}
+
+  def handle_file({:error, reason}, conn),
+    do: %{conn | status: 404, response: "File not fount #{inspect(reason)}!!"}
 
   def route(conn, _method, path) do
     %{conn | status: 404, response: "No #{path} found!!"}
