@@ -1,4 +1,6 @@
 defmodule Traefik.Handler do
+  @files_path Path.expand("../../pages", __DIR__)
+
   def handler(request) do
     request
     |> parse()
@@ -37,7 +39,7 @@ defmodule Traefik.Handler do
   end
 
   def route(conn, "GET", "/about") do
-    Path.expand("../../pages", __DIR__)
+    @files_path
     |> Path.join("about.html")
     |> File.read()
     |> handle_file(conn)
