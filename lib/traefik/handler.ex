@@ -1,6 +1,9 @@
 defmodule Traefik.Handler do
   @files_path Path.expand("../../pages", __DIR__)
 
+  import Traefik.Plugs, only: [log: 1, track: 1]
+  import Traefik.Parser, only: [parse: 1]
+
   def handler(request) do
     request
     |> parse()
@@ -9,18 +12,6 @@ defmodule Traefik.Handler do
     |> track()
     |> format_response()
   end
-
-  def parse(request) do
-    [method, path, _protocol] =
-      request
-      |> String.split("\n")
-      |> List.first()
-      |> String.split(" ")
-
-    %{method: method, path: path, response: "", status: ""}
-  end
-
-  def log(conn), do: IO.inspect(conn, label: "log")
 
   def route(conn) do
     route(conn, conn.method, conn.path)
@@ -45,6 +36,10 @@ defmodule Traefik.Handler do
     |> handle_file(conn)
   end
 
+  def route(conn, _method, path) do
+    %{conn | status: 404, response: "No #{path} found!!"}
+  end
+
   #  def route(conn, "GET", "/about") do
   #    Path.expand("../../pages", __DIR__)
   #    |> Path.join("about.html")
@@ -62,17 +57,6 @@ defmodule Traefik.Handler do
 
   def handle_file({:error, reason}, conn),
     do: %{conn | status: 404, response: "File not fount #{inspect(reason)}!!"}
-
-  def route(conn, _method, path) do
-    %{conn | status: 404, response: "No #{path} found!!"}
-  end
-
-  def track(%{status: 404, path: path} = conn) do
-    IO.inspect("Warn path #{path} not found")
-    conn
-  end
-
-  def track(conn), do: conn
 
   def format_response(conn) do
     """
