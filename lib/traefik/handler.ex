@@ -15,23 +15,23 @@ defmodule Traefik.Handler do
     |> format_response()
   end
 
-  def route(%Conn{} = conn) do
-    route(conn, conn.method, conn.path)
-  end
-
-  def route(%Conn{} = conn, "GET", "/hello") do
+  def route(%Conn{method: "GET", path: "/hello"} = conn) do
     %{conn | status: 200, response: "Hello world"}
   end
 
-  def route(%Conn{} = conn, "GET", "/world") do
+  def route(%Conn{method: "GET", path: "/world"} = conn) do
     %{conn | status: 200, response: "Hola Making devs"}
   end
 
-  def route(%Conn{} = conn, "GET", "/all") do
+  def route(%Conn{method: "GET", path: "/all"} = conn) do
     %{conn | status: 200, response: "All developers greetings"}
   end
 
-  def route(%Conn{} = conn, "GET", "/about") do
+  def route(%Conn{method: "POST", path: "/new", params: params} = conn) do
+    %{conn | status: 201, response: "A new element created #{params}"}
+  end
+
+  def route(%Conn{method: "GET", path: "/about"} = conn) do
     @files_path
     |> Path.join("about.html")
     |> File.read()
@@ -73,7 +73,7 @@ defmodule Traefik.Handler do
   end
 end
 
-request = """
+request1 = """
 GET /world HTTP/1.1
 Accept: */*
 Connection: keep-alive
@@ -89,5 +89,15 @@ User-Agent: telnet
 
 """
 
-IO.puts(Traefik.Handler.handler(request))
+request6 = """
+POST /new HTTP/1.1
+Accept: */*
+Connection: keep-alive
+User-Agent: telnet
+
+name=juan&company=md
+"""
+
+IO.puts(Traefik.Handler.handler(request1))
 IO.puts(Traefik.Handler.handler(request2))
+IO.puts(Traefik.Handler.handler(request6))
