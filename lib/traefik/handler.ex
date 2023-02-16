@@ -28,7 +28,7 @@ defmodule Traefik.Handler do
   end
 
   def route(%Conn{method: "POST", path: "/new", params: params} = conn) do
-    %{conn | status: 201, response: "A new element created #{params}"}
+    %{conn | status: 201, response: "A new element created"}
   end
 
   def route(%Conn{method: "GET", path: "/about"} = conn) do
@@ -93,6 +93,7 @@ request6 = """
 POST /new HTTP/1.1
 Accept: */*
 Connection: keep-alive
+Cpmtemt-Type: application/x-www-form-urlencoded
 User-Agent: telnet
 
 name=juan&company=md

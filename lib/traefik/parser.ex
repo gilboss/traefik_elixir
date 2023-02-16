@@ -6,9 +6,9 @@ defmodule Traefik.Parser do
 
     [request_line | headers_string] = String.split(main, "\n")
 
-    params = URI.decode(params_string)
-
     headers = parse_headers(headers_string, %{})
+
+    params = parse_params(headers["Content-Type"], params_string)
 
     [method, path, _protocol] =
       request_line
@@ -28,9 +28,14 @@ defmodule Traefik.Parser do
   def parse_headers([head | tail], headers) do
     [header_name, header_value] = String.split(head, ": ")
     headers = Map.put(headers, header_name, header_value)
-    IO.inspect(headers)
     parse_headers(tail, headers)
   end
 
-  def parse_headers([], headers), do: IO.puts("terminó esta cosa")
+  def parse_headers([], headers), do: headers
+
+  def parse_params("application/x-www-form-urlencoded", params_string) do
+    URI.decode_query(params_string)
+  end
+
+  def parse_params(_, _), do: %{}
 end
