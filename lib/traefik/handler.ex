@@ -5,6 +5,7 @@ defmodule Traefik.Handler do
   import Traefik.Parser, only: [parse: 1]
 
   alias Traefik.Conn
+  alias Traefik.DeveloperController
 
   def handler(request) do
     request
@@ -23,8 +24,12 @@ defmodule Traefik.Handler do
     %{conn | status: 200, response: "Hola Making devs"}
   end
 
-  def route(%Conn{method: "GET", path: "/all"} = conn) do
-    %{conn | status: 200, response: "All developers greetings"}
+  def route(%Conn{method: "GET", path: "/developer"} = conn) do
+    DeveloperController.index(conn)
+  end
+
+  def route(%Conn{method: "GET", path: "/developer/" <> id} = conn) do
+    DeveloperController.show(conn, %{"id" => id})
   end
 
   def route(%Conn{method: "POST", path: "/new", params: params} = conn) do
@@ -99,6 +104,26 @@ User-Agent: telnet
 name=juan&company=md
 """
 
+request7 = """
+GET /developer HTTP/1.1
+Accept: */*
+Connection: keep-alive
+Cpmtemt-Type: application/x-www-form-urlencoded
+User-Agent: telnet
+
+"""
+
+request8 = """
+GET /developer/17 HTTP/1.1
+Accept: */*
+Connection: keep-alive
+Cpmtemt-Type: application/x-www-form-urlencoded
+User-Agent: telnet
+
+"""
+
 IO.puts(Traefik.Handler.handler(request1))
 IO.puts(Traefik.Handler.handler(request2))
 IO.puts(Traefik.Handler.handler(request6))
+IO.puts(Traefik.Handler.handler(request7))
+IO.puts(Traefik.Handler.handler(request8))
