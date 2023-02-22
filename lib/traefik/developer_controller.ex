@@ -26,4 +26,13 @@ defmodule Traefik.DeveloperController do
 
     %{conn | response: dev_response, status: 200}
   end
+
+  defp render(conn, template, bindings) do
+    response =
+      Path.expand("../../templates", __DIR__)
+      |> Path.join(template)
+      |> EEx.eval_file(bindings)
+
+    %{conn | response: response, status: 200}
+  end
 end
