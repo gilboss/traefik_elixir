@@ -1,6 +1,9 @@
 defmodule Traefik.Parser do
   alias Traefik.Conn
 
+  @doc """
+  Parses a request and transforms into a Traefik.Conn struct.
+  """
   def parse(request) do
     [main, params_string] = String.split(request, "\n\n")
 
@@ -25,6 +28,16 @@ defmodule Traefik.Parser do
     |> IO.inspect()
   end
 
+  @doc """
+  ## Parses the headers from a request into a map.
+  For example:
+
+    iex> headers = ["Accept: */*", "Connection: keep-alive"]
+    iex> headers = Traefik.Parser.parse_headers(headers, %{})
+    %{"Accept" => "*/*", "Connection" => "keep-alive"}
+    iex> headers = Traefik.Parser.parse_headers([], %{})
+    %{}
+  """
   def parse_headers([head | tail], headers) do
     [header_name, header_value] = String.split(head, ": ")
     headers = Map.put(headers, header_name, header_value)
