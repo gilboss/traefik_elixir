@@ -2,34 +2,23 @@ defmodule Traefik.DeveloperController do
   alias Traefik.Conn
   alias Traefik.Organization
 
+  @templates_location Path.expand("../../templates", __DIR__)
+
   def index(%Conn{} = conn) do
-    developers =
-      Organization.list_developers()
-      |> Enum.map(fn d -> "<li>#{d.id} #{d.first_name}</li>" end)
-      |> Enum.join("\n")
+    developers = Organization.list_developers(%{limit: 5, offset: 0})
 
-    developers = "
-    <ul>
-    #{developers}
-    </ul>
-    "
-
-    %{conn | response: developers, status: 200}
+    render(conn, "index.eex", developers: developers)
   end
 
   def show(%Conn{} = conn, %{"id" => id}) do
     developer = Organization.get_developer(id)
 
-    dev_response = """
-    #{developer.id} - #{developer.first_name} - #{developer.last_name} - #{developer.email}
-    """
-
-    %{conn | response: dev_response, status: 200}
+    render(conn, "show.eex", developer: developer)
   end
 
   defp render(conn, template, bindings) do
     response =
-      Path.expand("../../templates", __DIR__)
+      @templates_location
       |> Path.join(template)
       |> EEx.eval_file(bindings)
 
