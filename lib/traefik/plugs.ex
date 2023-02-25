@@ -5,6 +5,8 @@ defmodule Traefik.Plugs do
     %{conn | path: "/all"}
   end
 
+  def rewrite_path(%Conn{} = conn), do: conn
+
   def log(conn), do: IO.inspect(conn, label: "log")
 
   def track(%Conn{status: 404, path: path} = conn) do
