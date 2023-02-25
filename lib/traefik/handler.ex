@@ -1,7 +1,7 @@
 defmodule Traefik.Handler do
   @files_path Path.expand("../../pages", __DIR__)
 
-  import Traefik.Plugs, only: [log: 1, track: 1]
+  import Traefik.Plugs, only: [rewrite_path: 1, log: 1, track: 1]
   import Traefik.Parser, only: [parse: 1]
 
   alias Traefik.Conn
@@ -10,6 +10,7 @@ defmodule Traefik.Handler do
   def handler(request) do
     request
     |> parse()
+    |> rewrite_path()
     |> log()
     |> route()
     |> track()
@@ -21,7 +22,7 @@ defmodule Traefik.Handler do
   end
 
   def route(%Conn{method: "GET", path: "/world"} = conn) do
-    %{conn | status: 200, response: "Hola Making devs"}
+    %{conn | status: 200, response: "Hello World!!!"}
   end
 
   def route(%Conn{method: "GET", path: "/developer"} = conn) do
@@ -32,7 +33,7 @@ defmodule Traefik.Handler do
     DeveloperController.show(conn, %{"id" => id})
   end
 
-  def route(%Conn{method: "POST", path: "/new", params: params} = conn) do
+  def route(%Conn{method: "POST", path: "/new"} = conn) do
     %{conn | status: 201, response: "A new element created"}
   end
 
@@ -43,7 +44,7 @@ defmodule Traefik.Handler do
     |> handle_file(conn)
   end
 
-  def route(%Conn{} = conn, _method, path) do
+  def route(%Conn{method: "GET", path: path} = conn) do
     %{conn | status: 404, response: "No #{path} found!!"}
   end
 
@@ -67,9 +68,10 @@ defmodule Traefik.Handler do
 
   def format_response(conn) do
     """
-    HTTP/1.1 #{Conn.status(conn)}}
+    HTTP/1.1 #{Conn.status(conn)}
     Host: some.com
-    User-Abent: telnet
+    User-Agent: telnet
+    Content-Type: text/html
     Content-Lenght: #{String.length(conn.response)}
     Accept: */*
 
@@ -122,8 +124,4 @@ User-Agent: telnet
 
 """
 
-IO.puts(Traefik.Handler.handler(request1))
-IO.puts(Traefik.Handler.handler(request2))
-IO.puts(Traefik.Handler.handler(request6))
-IO.puts(Traefik.Handler.handler(request7))
-IO.puts(Traefik.Handler.handler(request8))
+IO.inspect(Traefik.Handler.handler(request7))
